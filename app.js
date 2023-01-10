@@ -1,15 +1,29 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
+const env = 'mongodb://localhost:27017/mestodb';
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+app.use(helmet());
+
+app.disable('x-powered-by');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
+mongoose.connect(env);
 
 app.use((req, res, next) => {
   req.user = {
