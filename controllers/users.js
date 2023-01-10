@@ -3,7 +3,12 @@ const User = require('../models/user');
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send([users]))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные при запросе данных пользователя.' });
+      }
+      return res.status(500).send({ message: err.message });
+    });
 };
 
 module.exports.createUser = (req, res) => {
