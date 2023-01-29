@@ -1,9 +1,18 @@
+/* eslint-disable import/no-unresolved */
+require('dotenv').config();
 const express = require('express');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
+const { errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const users = require('./routes/users');
 const cards = require('./routes/cards');
+const { signInValidation, signUpValidation } = require('./middlewares/validation');
+const auth = require('./middlewares/auth');
+const { login, createUser } = require('./controllers/users');
+
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const env = 'mongodb://localhost:27017/mestodb';
@@ -22,20 +31,33 @@ app.disable('x-powered-by');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.post('/signin', signInValidation(), login);
+app.post('/signup', signUpValidation(), createUser);
+app.use('*', auth);
 
 mongoose.connect(env);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '63bbdda9422335ff6f72779a',
-  };
-
-  next();
-});
 app.use('/cards', cards);
 app.use('/users', users);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Страница по указанному маршруту не найдена' });
+app.use((req, res, next) => {
+  next(new NotFoundError('Страница по указанному маршруту не найдена'));
+});
+app.use(errors());
+app.use((err, req, res, next) => {
+  // если у ошибки нет статуса, выставляем 500
+  const { statusCode = 500, message } = err;
+  res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+
+  next();
 });
 
 app.listen(PORT, () => {
