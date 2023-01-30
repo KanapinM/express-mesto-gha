@@ -1,7 +1,7 @@
 /* eslint-disable import/no-unresolved */
 require('dotenv').config();
 const express = require('express');
-const cookieParser = require('cookie-parser');
+// const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
@@ -31,7 +31,7 @@ app.disable('x-powered-by');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+// app.use(cookieParser());
 mongoose.connect(env);
 
 app.post('/signin', signInValidation(), login);
