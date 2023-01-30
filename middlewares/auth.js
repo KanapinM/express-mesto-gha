@@ -5,7 +5,7 @@ const { JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const Unauthorized = require('../errors/Unauthorized');
 
-module.exports = (req, res, next) => {
+const auth = (req, res, next) => {
   const { authorization } = req.headers;
   const coockieToken = req.cookies.jwt;
   console.log(coockieToken);
@@ -29,3 +29,5 @@ module.exports = (req, res, next) => {
 
   next();
 };
+
+module.exports = auth;
