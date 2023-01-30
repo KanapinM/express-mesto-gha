@@ -33,12 +33,11 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({
+    .then(() => res.send({
       name,
       about,
       avatar,
       email,
-      _id: user._id,
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {

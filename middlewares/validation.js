@@ -14,7 +14,8 @@ const signUpValidation = () => celebrate({
         'http',
         'https',
       ],
-    }),
+    })
+      .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
     email: Joi.string().required(true).email(),
     password: Joi.string().required(true).min(6),
   }).unknown(true),
@@ -29,8 +30,8 @@ const signInValidation = () => celebrate({
 
 const updateProfileValidation = () => celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
+    name: Joi.string().min(2).max(30).default('Жак-Ив Кусто'),
+    about: Joi.string().min(2).max(30).default('Исследователь'),
   }).unknown(true),
 });
 
