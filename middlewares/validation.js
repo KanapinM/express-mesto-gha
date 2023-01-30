@@ -9,7 +9,7 @@ const signUpValidation = () => celebrate({
     //   .min(2)
     //   .max(30)
     //   .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
-    avatar: Joi.string().required(false).uri({
+    avatar: Joi.string().uri({
       scheme: [
         'http',
         'https',
