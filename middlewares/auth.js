@@ -1,6 +1,7 @@
 /* eslint-disable import/no-unresolved */
 require('dotenv').config();
-const { NODE_ENV, JWT_SECRET } = process.env;
+
+const { JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const Unauthorized = require('../errors/Unauthorized');
 
