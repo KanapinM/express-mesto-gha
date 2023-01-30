@@ -107,20 +107,50 @@ module.exports.getUser = (req, res, next) => {
     });
 };
 
-module.exports.getMe = (req, res, next) => {
-  User.findById(req.user._id)
-    .orFail(() => {
-      throw next(new NotFoundError('Пользователь по указанному _id не найден.'));
-    })
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
-      } else if (err.name === 'NotFound') {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      }
-      next(err);
-    });
+module.exports.getMe = async (req, res, next) => {
+  // User.findById(req.user._id)
+  // .orFail(() => {
+  //   throw next(new NotFoundError('Пользователь по указанному _id не найден.'));
+  // })
+  // .then((user) => res.send(user))
+  // .catch((err) => {
+  //   if (err.name === 'CastError') {
+  //     next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
+  //   } else if (err.name === 'NotFound') {
+  //     return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+  //   }
+  //   next(err);
+  // });
+
+  // User.findById(req.user._id)
+  //   .then((user) => {
+  //     if (!user) {
+  //       next(new NotFoundError('Пользователь по указанному _id не найден.'));
+  //     }
+  //     return User.findByIdAndRemove(req.user._id)
+  //       .orFail(() => {
+  //         throw new NotFoundError('Пользователь по указанному _id не найден.');
+  //       })
+  //       .then((user) => res.send(user))
+  //       .catch((err) => {
+  //         if (err.name === 'CastError') {
+  // eslint-disable-next-line max-len
+  //           next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
+  //         } else if (err.name === 'NotFound') {
+  //           return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+  //         }
+  //         next(err);
+  //       });
+  //   });
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      throw NotFoundError('req.user._id');
+    }
+    return res.send(user);
+  } catch (err) {
+    next(err);
+  }
 };
 
 module.exports.updateProfile = (req, res, next) => {
