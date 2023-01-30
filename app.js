@@ -36,7 +36,7 @@ mongoose.connect(env);
 
 app.post('/signin', signInValidation(), login);
 app.post('/signup', signUpValidation(), createUser);
-app.use('*', auth);
+app.use(auth);
 
 app.use('/cards', cards);
 app.use('/users', users);
