@@ -1,21 +1,22 @@
 /* eslint-disable import/no-unresolved */
+require('dotenv').config();
+const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const Unauthorized = require('../errors/Unauthorized');
 
-const extractBearerToken = (header) => header.replace('Bearer ', '');
-
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
+  const coockieToken = req.cookies.jwt;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
     throw new Unauthorized('Необходима авторизация');
   }
 
-  const token = extractBearerToken(authorization);
+  const token = authorization ? authorization.replace('Bearer ', '') : coockieToken;
   let payload;
 
   try {
-    payload = jwt.verify(token, process.env.JWT_SECRET);
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     throw new Unauthorized('Необходима авторизация');
   }
