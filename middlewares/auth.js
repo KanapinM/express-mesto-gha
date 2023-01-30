@@ -13,7 +13,7 @@ module.exports = (req, res, next) => {
     throw new Unauthorized('Необходима авторизация');
   }
 
-  const token = authorization ? authorization.replace('Bearer ', '') : coockieToken;
+  const token = !authorization ? coockieToken : authorization.replace('Bearer ', '');
   let payload;
 
   try {
