@@ -32,12 +32,11 @@ app.disable('x-powered-by');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+mongoose.connect(env);
 
 app.post('/signin', signInValidation(), login);
 app.post('/signup', signUpValidation(), createUser);
 app.use('*', auth);
-
-mongoose.connect(env);
 
 app.use('/cards', cards);
 app.use('/users', users);
