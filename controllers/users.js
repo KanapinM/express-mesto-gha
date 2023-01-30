@@ -13,7 +13,7 @@ const Unauthorized = require('../errors/Unauthorized');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send([users]))
+    .then((users) => res.send({ data: users }))
     .catch((err) => next(err));
 };
 
@@ -34,10 +34,12 @@ module.exports.createUser = (req, res, next) => {
       password: hash,
     }))
     .then(() => res.send({
-      name,
-      about,
-      avatar,
-      email,
+      data: {
+        name,
+        about,
+        avatar,
+        email,
+      },
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {

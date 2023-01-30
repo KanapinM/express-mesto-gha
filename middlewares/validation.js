@@ -43,7 +43,7 @@ const getUserValidation = () => celebrate({
 
 const updateAvatarValidation = () => celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required(true).uri({
+    avatar: Joi.string().required().uri({
       scheme: [
         'http',
         'https',
