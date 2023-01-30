@@ -11,7 +11,9 @@ module.exports = (req, res, next) => {
   console.log(coockieToken);
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new Unauthorized('Необходима авторизация');
+    if (!coockieToken) {
+      throw next(new Unauthorized('Необходима авторизация'));
+    }
   }
 
   const token = !authorization ? coockieToken : authorization.replace('Bearer ', '');
@@ -20,7 +22,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    throw new Unauthorized('Необходима авторизация');
+    throw next(new Unauthorized('Необходима авторизация'));
   }
 
   req.user = payload;
