@@ -9,7 +9,7 @@ const signUpValidation = () => celebrate({
     //   .min(2)
     //   .max(30)
     //   .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
-    avatar: Joi.string().required(true).uri({
+    avatar: Joi.string().required(false).uri({
       scheme: [
         'http',
         'https',
@@ -34,6 +34,12 @@ const updateProfileValidation = () => celebrate({
   }).unknown(true),
 });
 
+const getUserValidation = () => celebrate({
+  params: Joi.object().keys({
+    userId: Joi.string().hex().length(24),
+  }).unknown(true),
+});
+
 const updateAvatarValidation = () => celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().required(true).uri({
@@ -48,7 +54,25 @@ const updateAvatarValidation = () => celebrate({
 const createCardValidation = () => celebrate({
   body: Joi.object().keys({
     name: Joi.string().required(true).min(2).max(30),
-    link: Joi.string().required(true).uri(),
+    link: Joi.string().required(true).regex(/https?[\w\W]/),
+  }).unknown(true),
+});
+
+const deleteCardValidation = () => celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24),
+  }).unknown(true),
+});
+
+const likeCardValidation = () => celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24),
+  }).unknown(true),
+});
+
+const dislikeCardValidation = () => celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().hex().length(24),
   }).unknown(true),
 });
 
@@ -57,5 +81,10 @@ module.exports = {
   signUpValidation,
   updateProfileValidation,
   updateAvatarValidation,
+  getUserValidation,
   createCardValidation,
+  deleteCardValidation,
+  likeCardValidation,
+  dislikeCardValidation,
+
 };
