@@ -49,44 +49,43 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-module.exports.login = async (req, res, next) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  // return User.findUserByCredentials(email, password)
-  //   .then((user) => {
-  //     bcrypt.compare(password, user.password);
-  //     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-  //     // это может перепроверить
-  //     return res.send({ token });
-  //     // res
-  //     //   .cookie('jwt', token, {
-  //     //     maxAge: 3600000 * 24 * 7,
-  //     //     httpOnly: true,
-  //     //   })
-  //     //   .send({ isToken: token });
-  //   })
-  // .catch(next);
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      bcrypt.compare(password, user.password);
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+      // это может перепроверить
+      // return res.send({ token });
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 24 * 7,
+          httpOnly: true,
+        })
+        .send({ isToken: token });
+    })
+    .catch(next);
 
-  try {
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      throw new Unauthorized('Не верный пользователь или пароль');
-    }
-    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  // try {
+  //   const user = await User.findOne({ email }).select('+password');
+  //   if (!user) {
+  //     throw new Unauthorized('Не верный пользователь или пароль');
+  //   }
+  //   const isPasswordCorrect = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordCorrect) {
-      throw new Unauthorized('Не верный пользователь или пароль');
-    }
+  //   if (!isPasswordCorrect) {
+  //     throw new Unauthorized('Не верный пользователь или пароль');
+  //   }
 
-    if (isPasswordCorrect) {
-      const token = await jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
-        expiresIn: '7d',
-      });
-      res.send({ token });
-    }
-  } catch (err) {
-    next(err);
-  }
+  //   if (isPasswordCorrect) {
+  //       expiresIn: '7d',
+  //     });
+  //     res.send({ token });
+  //   }
+  // } catch (err) {
+  //   next(err);
+  // }
 };
 
 module.exports.getUser = (req, res, next) => {
@@ -105,39 +104,19 @@ module.exports.getUser = (req, res, next) => {
     });
 };
 
-module.exports.getMe = async (req, res, next) => {
-  // User.findById(req.user._id)
-  // .orFail(() => {
-  //   throw next(new NotFoundError('Пользователь по указанному _id не найден.'));
-  // })
-  // .then((user) => res.send(user))
-  // .catch((err) => {
-  //   if (err.name === 'CastError') {
-  //     next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
-  //   } else if (err.name === 'NotFound') {
-  //     return next(new NotFoundError('Пользователь по указанному _id не найден.'));
-  //   }
-  //   next(err);
-  // });
-
+module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        next(new NotFoundError('Пользователь по указанному _id не найден.'));
+    .orFail(() => {
+      throw next(new NotFoundError('Пользователь по указанному _id не найден.'));
+    })
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
+      } else if (err.name === 'NotFound') {
+        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
       }
-      return User.findByIdAndRemove(req.user._id)
-        .orFail(() => {
-          throw new NotFoundError('Пользователь по указанному _id не найден.');
-        })
-        .then(res.send(user))
-        .catch((err) => {
-          if (err.name === 'CastError') {
-            next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
-          } else if (err.name === 'NotFound') {
-            return next(new NotFoundError('Пользователь по указанному _id не найден.'));
-          }
-          next(err);
-        });
+      next(err);
     });
 };
 
