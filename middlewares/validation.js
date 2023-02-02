@@ -6,11 +6,6 @@ const signUpValidation = () => celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    // avatar: Joi
-    //   .string()
-    //   .min(2)
-    //   .max(30)
-    //   .default('https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png'),
     avatar: Joi.string().regex(RegExp),
     email: Joi.string().required(true).email(),
     password: Joi.string().required(true).min(6),
@@ -56,24 +51,6 @@ const idValidation = () => celebrate({
   }).unknown(true),
 });
 
-// const deleteCardValidation = () => celebrate({
-//   params: Joi.object().keys({
-//     cardId: Joi.string().hex().length(24),
-//   }).unknown(true),
-// });
-
-// const likeCardValidation = () => celebrate({
-//   params: Joi.object().keys({
-//     cardId: Joi.string().hex().length(24),
-//   }).unknown(true),
-// });
-
-// const dislikeCardValidation = () => celebrate({
-//   params: Joi.object().keys({
-//     cardId: Joi.string().hex().length(24),
-//   }).unknown(true),
-// });
-
 module.exports = {
   signInValidation,
   signUpValidation,
@@ -82,7 +59,4 @@ module.exports = {
   getUserValidation,
   createCardValidation,
   idValidation,
-  // deleteCardValidation,
-  // likeCardValidation,
-  // dislikeCardValidation,
 };

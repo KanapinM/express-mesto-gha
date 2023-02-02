@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest');
 const Forbidden = require('../errors/Forbidden');
@@ -29,14 +28,12 @@ module.exports.deleteCard = (req, res, next) => {
     .then((card) => {
       const potentialUserId = req.user._id;
       const ownerUserId = card ? card.owner._id.toString() : false;
-      // const ownerUserId = potentialUserId;
 
       if (!card) {
         return next(new NotFoundError('Карточка с указанным _id не найдена.'));
       } if (potentialUserId !== ownerUserId) {
         return next(new Forbidden('Вы не являетесь владельцем карточки.'));
       }
-      // return Card.findByIdAndRemove(req.params.cardId)
       return Card.remove(card)
         .orFail(() => {
           throw new NotFoundError('Карточка с указанным _id не найдена.');
