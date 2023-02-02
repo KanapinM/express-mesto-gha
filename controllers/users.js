@@ -8,7 +8,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const BadRequest = require('../errors/BadRequest');
 const Conflict = require('../errors/Conflict');
 const NotFoundError = require('../errors/NotFoundError');
-const Unauthorized = require('../errors/Unauthorized');
+// const Unauthorized = require('../errors/Unauthorized');
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
@@ -52,28 +52,37 @@ module.exports.createUser = (req, res, next) => {
     });
 };
 
-module.exports.login = async (req, res, next) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      throw new Unauthorized('Не верный пользователь или пароль');
-    }
-    const checkPassword = await bcrypt.compare(password, user.password);
-
-    if (!checkPassword) {
-      throw new Unauthorized('Не верный пользователь или пароль');
-    }
-
-    if (checkPassword) {
-      const token = await jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
         expiresIn: '7d',
       });
       res.send({ token });
-    }
-  } catch (err) {
-    next(err);
-  }
+    })
+    .catch(next);
+  // try {
+  //   const user = await User.findOne({ email }).select('+password');
+  //   if (!user) {
+  //     throw new Unauthorized('Не верный пользователь или пароль');
+  //   }
+  //   const checkPassword = await bcrypt.compare(password, user.password);
+
+  //   if (!checkPassword) {
+  //     throw new Unauthorized('Не верный пользователь или пароль');
+  //   }
+
+  //   if (checkPassword) {
+  //     const token =
+  //  await jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
+  //       expiresIn: '7d',
+  //     });
+  //     res.send({ token });
+  //   }
+  // } catch (err) {
+  //   next(err);
+  // }
 };
 
 module.exports.getUser = (req, res, next) => {
