@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 require('dotenv').config();
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -11,7 +10,7 @@ const auth = (req, res, next) => {
 
   try {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new Unauthorized('Необходима авторизация');
+      throw next(new Unauthorized('Необходима авторизация'));
     }
 
     const token = authorization.replace('Bearer ', '');

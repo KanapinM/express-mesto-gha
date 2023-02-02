@@ -1,7 +1,6 @@
-/* eslint-disable import/no-unresolved */
 require('dotenv').config();
 const express = require('express');
-// const cookieParser = require('cookie-parser');
+// TODO: use cookie.  const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
@@ -31,13 +30,12 @@ app.disable('x-powered-by');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(cookieParser());
+// TODO: use cookie. app.use(cookieParser());
 mongoose.connect(env);
 
 app.post('/signin', signInValidation(), login);
 app.post('/signup', signUpValidation(), createUser);
 app.use(auth);
-// app.use(cookieParser());
 app.use('/cards', cards);
 app.use('/users', users);
 app.use((req, res, next) => {

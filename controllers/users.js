@@ -1,4 +1,3 @@
-/* eslint-disable import/no-unresolved */
 /* eslint-disable consistent-return */
 require('dotenv').config();
 const bcrypt = require('bcryptjs');
@@ -14,7 +13,8 @@ const Unauthorized = require('../errors/Unauthorized');
 module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ users }))
-    .catch((err) => next(err));
+    // .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -33,16 +33,19 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then(() => res.send({
-      name,
-      about,
-      avatar,
-      email,
+    .then((user) => res.send({
+      data: {
+        name,
+        about,
+        avatar,
+        email,
+        _id: user._id,
+      },
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
-      } else if (err.code === 11000) {
+        return next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
+      } if (err.code === 11000) {
         return next(new Conflict('Пользовотель с введенным Email уже зарегестрирован.'));
       }
       next(err);
@@ -66,7 +69,7 @@ module.exports.login = async (req, res, next) => {
       const token = await jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', {
         expiresIn: '7d',
       });
-      res.send({ token });
+      res.status(201).send({ token });
     }
   } catch (err) {
     next(err);
@@ -81,9 +84,7 @@ module.exports.getUser = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
-      } else if (err.name === 'NotFound') {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+        return next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
       }
       next(err);
     });
@@ -95,14 +96,13 @@ module.exports.getMe = (req, res, next) => {
       throw next(new NotFoundError('Пользователь по указанному _id не найден.'));
     })
     .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные при запросе данных пользователя.'));
-      } else if (err.name === 'NotFound') {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
-      }
-      next(err);
-    });
+    // .catch((err) => {
+    //   if (err.name === 'NotFound') {
+    //     return next(new NotFoundError('Пользователь по указанному _id не найден.'));
+    //   }
+    //   next(err);
+    // });
+    .catch(next);
 };
 
 module.exports.updateProfile = (req, res, next) => {
@@ -119,8 +119,6 @@ module.exports.updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные при редактировании данных пользователя.'));
-      } else if (err.name === 'NotFound') {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
       }
       next();
     });
@@ -140,8 +138,6 @@ module.exports.updateAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Переданы некорректные данные при редактировании аватара пользователя.'));
-      } else if (err.name === 'NotFound') {
-        return next(new NotFoundError('Пользователь по указанному _id не найден.'));
       }
       next(err);
     });
