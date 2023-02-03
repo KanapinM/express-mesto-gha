@@ -49,14 +49,13 @@ const Unauthorized = require('../errors/Unauthorized');
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
   const JWT = req.cookies.jwt;
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    if (!JWT) { throw next(new Unauthorized('Необходима авторизация')); }
-  }
-  // const token = !authorization ? JWT : authorization.replace('Bearer ', '');
-  const token = authorization.replace('Bearer ', '');
   let payload;
+
   try {
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+      if (!JWT) { throw next(new Unauthorized('Необходима авторизация')); }
+    }
+    const token = authorization.replace('Bearer ', '');
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (err) {
     next(new Unauthorized('Необходима авторизация'));
