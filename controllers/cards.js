@@ -7,12 +7,11 @@ module.exports.getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((cards) => res.send([cards]))
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
-
   Card.create({ name, link, owner: req.user })
     .then((card) => res.status(201).send({ card }))
     .catch((err) => {
@@ -25,6 +24,7 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
+    .populate('owner')
     .then((card) => {
       const potentialUserId = req.user._id;
       const ownerUserId = card ? card.owner._id.toString() : false;
@@ -36,17 +36,16 @@ module.exports.deleteCard = (req, res, next) => {
       }
       return Card.remove(card)
         .orFail(() => {
-          throw new NotFoundError('Карточка с указанным _id не найдена.');
+          next(new NotFoundError('Карточка с указанным _id не найдена.'));
         })
-        .then(() => res.send({ massage: 'Карточка удалена' }))
-        .catch((err) => {
-          if (err.name === 'CastError') {
-            return next(new BadRequest('Переданы некорректные данные для удалении карточки.'));
-          }
-          next(err);
-        });
+        .then(() => res.send({ massage: 'Карточка удалена' }));
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequest('Переданы некорректные данные для удаления карточки.'));
+      }
+      next(err);
+    });
 };
 
 module.exports.likeCard = (req, res, next) => {
@@ -57,7 +56,7 @@ module.exports.likeCard = (req, res, next) => {
   )
     .populate(['owner', 'likes'])
     .orFail(() => {
-      throw new NotFoundError('Передан несуществующий _id карточки.');
+      next(new NotFoundError('Передан несуществующий _id карточки.'));
     })
     .then((likeCard) => res.send({ likeCard }))
     .catch((err) => {
@@ -75,7 +74,7 @@ module.exports.dislikeCard = (req, res, next) => {
     { new: true },
   )
     .orFail(() => {
-      throw new NotFoundError('Передан несуществующий _id карточки.');
+      next(new NotFoundError('Передан несуществующий _id карточки.'));
     })
     .then((dislikeCard) => res.send({ dislikeCard }))
     .catch((err) => {

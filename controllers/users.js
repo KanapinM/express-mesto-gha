@@ -64,7 +64,7 @@ module.exports.login = (req, res, next) => {
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      throw new NotFoundError('Пользователь по указанному _id не найден.');
+      next(new NotFoundError('Пользователь по указанному _id не найден.'));
     })
     .then((user) => res.send(user))
     .catch((err) => {
@@ -78,7 +78,7 @@ module.exports.getUser = (req, res, next) => {
 module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      throw next(new NotFoundError('Пользователь по указанному _id не найден.'));
+      next(new NotFoundError('Пользователь по указанному _id не найден.'));
     })
     .then((user) => res.send(user))
     .catch(next);
@@ -92,7 +92,7 @@ module.exports.updateProfile = (req, res, next) => {
     { new: true, runValidators: true, upsert: false },
   )
     .orFail(() => {
-      throw next(new NotFoundError('Пользователь c указанным _id не найден.'));
+      next(new NotFoundError('Пользователь c указанным _id не найден.'));
     })
     .then((updateProfile) => res.send(updateProfile))
     .catch((err) => {
@@ -111,7 +111,7 @@ module.exports.updateAvatar = (req, res, next) => {
     { new: true, runValidators: true, upsert: false },
   )
     .orFail(() => {
-      throw next(new NotFoundError('Пользователь c указанным _id не найден.'));
+      next(new NotFoundError('Пользователь c указанным _id не найден.'));
     })
     .then((updateAvatar) => res.send(updateAvatar))
     .catch((err) => {

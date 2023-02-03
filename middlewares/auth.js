@@ -10,18 +10,18 @@ const auth = (req, res, next) => {
 
   try {
     if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw next(new Unauthorized('Необходима авторизация'));
+      next(new Unauthorized('Необходима авторизация'));
     }
 
     const token = authorization.replace('Bearer ', '');
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (err) {
-    next(err);
+    next(new Unauthorized('Необходима авторизация'));
   }
 
   req.user = payload;
 
-  next();
+  return next();
 };
 
 module.exports = auth;

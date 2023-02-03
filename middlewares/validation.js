@@ -1,5 +1,5 @@
 const { celebrate, Joi } = require('celebrate');
-/* eslint-disable no-useless-escape */
+
 const RegExp = /https?[\w\-\.\_\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]+/;
 
 const signUpValidation = () => celebrate({
