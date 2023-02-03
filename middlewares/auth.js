@@ -26,17 +26,37 @@ const Unauthorized = require('../errors/Unauthorized');
 //   return next();
 // };
 
+// const auth = (req, res, next) => {
+//   const { authorization } = req.headers;
+//   const cookiesJWT = req.cookies.jwt;
+//   let payload;
+
+//   try {
+//     if (!authorization || !authorization.startsWith('Bearer ')) {
+//       if (!cookiesJWT) { next(new Unauthorized('Необходима авторизация')); }
+//     }
+
+//     const token = !authorization ? cookiesJWT : authorization.replace('Bearer ', '');
+//     payload = jwt.verify(token, JWT_SECRET);
+//   } catch (err) {
+//     next(new Unauthorized('Необходима авторизация'));
+//   }
+
+//   req.user = payload;
+
+//   return next();
+// };
+
 const auth = (req, res, next) => {
   const { authorization } = req.headers;
   const cookiesJWT = req.cookies.jwt;
+
+  if (!authorization || !authorization.startsWith('Bearer ')) {
+    if (!cookiesJWT) { throw next(new Unauthorized('Необходима авторизация')); }
+  }
+  const token = !authorization ? cookiesJWT : authorization.replace('Bearer ', '');
   let payload;
-
   try {
-    if (!authorization || !authorization.startsWith('Bearer ')) {
-      if (!cookiesJWT) { next(new Unauthorized('Необходима авторизация')); }
-    }
-
-    const token = !authorization ? cookiesJWT : authorization.replace('Bearer ', '');
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     next(new Unauthorized('Необходима авторизация'));
