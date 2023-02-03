@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-// TODO: use cookie.  const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const rateLimit = require('express-rate-limit');
@@ -30,8 +30,8 @@ app.disable('x-powered-by');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// TODO: use cookie. app.use(cookieParser());
 mongoose.connect(env);
+app.use(cookieParser());
 
 app.post('/signin', signInValidation(), login);
 app.post('/signup', signUpValidation(), createUser);
