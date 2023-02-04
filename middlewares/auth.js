@@ -15,8 +15,8 @@ const auth = (req, res, next) => {
     if (!authorization || !authorization.startsWith('Bearer ')) {
       if (!JWT) { return next(new Unauthorized('Необходима авторизация')); }
     }
-    const token = !authorization ? JWT : authorization.replace('Bearer ', '');
-    payload = jwt.verify(token, JWT_SECRET);
+    // const token = !authorization ? JWT : authorization.replace('Bearer ', '');
+    payload = jwt.verify(JWT, JWT_SECRET);
   } catch (err) {
     return next(new Unauthorized('Необходима авторизация'));
   }
